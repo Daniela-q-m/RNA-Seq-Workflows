@@ -53,4 +53,93 @@ View(bmnc.seurat.obj@meta.data)
 bmnc.seurat.obj[["percent.mt"]] <- PercentageFeatureSet(bmnc.seurat.obj, pattern = "^MT-")
 View(bmnc.seurat.obj@meta.data)
 ```
+```{r}
+VlnPlot(bmnc.seurat.obj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+```{r}
+FeatureScatter(bmnc.seurat.obj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
+  geom_smooth(method = 'lm')
+```
+
+```{r}
+bmnc.seurat.obj <- subset(bmnc.seurat.obj, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & 
+                          percent.mt < 5)
+```
+```{r}
+#Normalize Data
+bmnc.seurat.obj  <- NormalizeData(bmnc.seurat.obj )
+str(bmnc.seurat.obj)
+```
+
+```{r}
+# 4. Identify highly variable features --------------
+bmnc.seurat.obj <- FindVariableFeatures(bmnc.seurat.obj, selection.method = "vst", nfeatures = 2000)
+```
+```{r}
+#Filter 30 most variable genes
+# Identify the 10 most highly variable genes
+top30genes <- head(VariableFeatures(bmnc.seurat.obj), 30)
+```
+```{r}
+plot1 <- VariableFeaturePlot(bmnc.seurat.obj)
+LabelPoints(plot = plot1, points = top30genes, repel = TRUE)
+```
+```{r}
+all.genes <- rownames(bmnc.seurat.obj)
+bmnc.seurat.obj <- ScaleData(bmnc.seurat.obj, features = all.genes)
+```
+
+```{r}
+str(bmnc.seurat.obj)
+```
+
+```{r}
+# 6. Perform Linear dimensionality reduction --------------
+bmnc.seurat.obj <- RunPCA(bmnc.seurat.obj, features = VariableFeatures(object = bmnc.seurat.obj))
+```
+```{r}
+# visualize PCA results
+print(bmnc.seurat.obj[["pca"]], dims = 1:5, nfeatures = 5)
+DimHeatmap(bmnc.seurat.obj, dims = 1, cells = 500, balanced = TRUE)
+```
+```{r}
+DimHeatmap(bmnc.seurat.obj, dims = 2, cells = 500, balanced = TRUE)
+```
+```{r}
+DimHeatmap(bmnc.seurat.obj, dims = 3, cells = 500, balanced = TRUE)
+```
+```{r}
+DimHeatmap(bmnc.seurat.obj, dims = 4, cells = 500, balanced = TRUE)
+```
+```{r}
+DimHeatmap(bmnc.seurat.obj, dims = 5, cells = 500, balanced = TRUE)
+```
+```{r}
+# determine dimensionality of the data
+ElbowPlot(bmnc.seurat.obj)
+```
+```{r}
+# 7. Clustering ------------
+bmnc.seurat.obj<- FindNeighbors(bmnc.seurat.obj, dims = 1:15)
+```
+```{r}
+# understanding resolution
+bmnc.seurat.obj <- FindClusters(bmnc.seurat.obj, resolution = c(0.1,0.3, 0.5, 0.7, 1))
+View(bmnc.seurat.obj@meta.data)
+```
+```{r}
+DimPlot(bmnc.seurat.obj, group.by = "RNA_snn_res.0.5", label = TRUE)
+```
+```{r}
+# setting identity of clusters
+Idents(bmnc.seurat.obj)
+Idents(bmnc.seurat.obj) <- "RNA_snn_res.0.1"
+Idents(bmnc.seurat.obj)
+```
+```{r}
+bmnc.seurat.obj <- RunUMAP(bmnc.seurat.obj, dims = 1:15)
+# note that you can set `label = TRUE` or use the LabelClusters function to help label
+# individual clusters
+DimPlot(bmnc.seurat.obj, reduction = "umap")
+```
 
