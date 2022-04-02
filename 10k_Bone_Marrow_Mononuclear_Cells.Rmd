@@ -1,0 +1,56 @@
+---
+title: "10k Bone Marrow Mononuclear Cells (BMMNCs)-Single Cell RNA Seq (Seurat Workflow)"
+output: html_notebook
+---
+```{r}
+install.packages('Seurat')
+```
+```{r}
+install.packages('SeuratData')
+```
+
+```{r}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("mojaveazure/seurat-disk")
+```
+```{r}
+devtools::install_github('satijalab/seurat-data')
+```
+
+```{r}
+library(Seurat)
+library(tidyverse)
+library(SeuratDisk)
+library(SeuratData)
+```
+
+
+
+```{r}
+#Load dataset downloaded from 10X genomics
+bmmnc.sparse.m <- Read10X_h5(filename = '/Users/danielaquijano/Documents/GitHub_Files/RNA Seq Workflows/10k_BMMNC_5pv2_nextgem_Multiplex_count_raw_feature_bc_matrix.h5')
+str(bmmnc.sparse.m )
+cts <-  bmmnc.sparse.m $`Gene Expression`
+```
+
+
+```{r}
+# Initialize the Seurat object with the raw (non-normalized data).
+bmnc.seurat.obj <- CreateSeuratObject(counts = cts, project = "BMNC", min.cells = 3, min.features = 200)
+str(bmnc.seurat.obj)
+bmnc.seurat.obj
+```
+
+
+### Quality Control
+```{r}
+View(bmnc.seurat.obj@meta.data)
+```
+```{r}
+# % MT reads
+bmnc.seurat.obj[["percent.mt"]] <- PercentageFeatureSet(bmnc.seurat.obj, pattern = "^MT-")
+View(bmnc.seurat.obj@meta.data)
+```
+
