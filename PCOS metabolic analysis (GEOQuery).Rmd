@@ -1,0 +1,15 @@
+---
+title: "PCOS-Androgen-related metabolic disturbances (Data Analysis w/ GEO Query)"
+output: html_notebook
+---
+
+The purpose of this notebook is to explore data from the study: 	
+Liao B, Qi X, Yun C, Qiao J et al. Effects of Androgen Excess-Related Metabolic Disturbances on Granulosa Cell Function and Follicular Development. Front Endocrinol (Lausanne) 2022;13:815968. PMID: 35237237
+The data was obtained using GEOQuery. The goal is to explore the regulation of genes related to both anrogen and estrogen function. 
+```{r}
+library(dplyr)
+library(tidyverse)
+library(GEOquery)
+```
+
+
