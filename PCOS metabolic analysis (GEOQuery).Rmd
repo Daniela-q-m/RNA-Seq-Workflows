@@ -5,11 +5,30 @@ output: html_notebook
 
 The purpose of this notebook is to explore data from the study: 	
 Liao B, Qi X, Yun C, Qiao J et al. Effects of Androgen Excess-Related Metabolic Disturbances on Granulosa Cell Function and Follicular Development. Front Endocrinol (Lausanne) 2022;13:815968. PMID: 35237237
-The data was obtained using GEOQuery. The goal is to explore the regulation of genes related to both anrogen and estrogen function. 
+The data was obtained using GEOQuery. The goal is to explore the regulation of genes related to both anrogen and estrogen function. The GEO acession number for this study is GSE193123
 ```{r}
 library(dplyr)
 library(tidyverse)
 library(GEOquery)
 ```
 
-
+Here I read in the dataframe downloaded from GEO as well as the metadata for this dataset. 
+```{r}
+df<- read.delim( file = "/Users/danielaquijano/Documents/GitHub/RNA-Seq-Workflows/GSE193123_gene_fpkm.txt",sep="\t")
+dim(df)
+```
+```{r}
+head(df)
+```
+```{r}
+gse <- getGEO(GEO = 'GSE193123', GSEMatrix = TRUE)
+```
+```{r}
+gse
+```
+```{r}
+#GEO Series are collections of related experiments, parse data with pData()
+metadata <- pData(phenoData(gse[[1]])) #First object of the first element in the list. 
+head(metadata)
+```
+With the metadata information we can see that we have 
