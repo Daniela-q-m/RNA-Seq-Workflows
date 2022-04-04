@@ -5,11 +5,14 @@ output: html_notebook
 
 The purpose of this notebook is to explore data from the study: 	
 Liao B, Qi X, Yun C, Qiao J et al. Effects of Androgen Excess-Related Metabolic Disturbances on Granulosa Cell Function and Follicular Development. Front Endocrinol (Lausanne) 2022;13:815968. PMID: 35237237
-The data was obtained using GEOQuery. The goal is to explore the regulation of genes related to both anrogen and estrogen function. The GEO acession number for this study is GSE193123
+The data was obtained using GEOQuery. The goal is to explore the regulation of genes related to both anrogen and estrogen function. The GEO acession number for this study is GSE193123. This analysis is a preliminary analysis before conducting a full differential gene expression analysis using this same dataset. 
 ```{r}
 library(dplyr)
 library(tidyverse)
 library(GEOquery)
+```
+```{r}
+BiocManager::install("EnsDb.Hsapiens.v79")
 ```
 
 Here I read in the dataframe downloaded from GEO as well as the metadata for this dataset. 
@@ -31,4 +34,48 @@ gse
 metadata <- pData(phenoData(gse[[1]])) #First object of the first element in the list. 
 head(metadata)
 ```
-With the metadata information we can see that we have 
+With the metadata information we can see that we have six samples. Three come from healthy women with no PCOS and the other samples come from women with PCOS.
+
+
+```{r}
+#Select columns from metadata and label samples and corresponding diagnosis
+metadata.modified <- metadata %>%
+  select(1,2,12,17) %>% 
+  rename(diagnosis= characteristics_ch1.2) %>%
+  rename( sample=title ) %>%
+  mutate(diagnosis = gsub("diagnosis: ", "", diagnosis)) 
+```
+```{r}
+df
+```
+```{r}
+df_only_counts=df  %>%
+  select(2,3,4,5,6,7,8) 
+#rownames(df_only_counts)<-df$gene_id
+```
+
+```{r}
+#Reshape gene expression dataframe (df) to long 
+data_long <- gather(df_only_counts, key='samples', value='FPKM', C1:P3, factor_key=TRUE)
+data_long
+```
+```{r}
+data_long_joined <- data_long %>%
+  left_join(., metadata.modified, by = c("samples" = "description")) 
+```
+```{r}
+head(data_long_joined)
+```
+Based on literature searchers, relevant genes
+```{r}
+genes_list<-
+```
+
+```{r}
+data_long_joined %>% filter(gene_name == 'AR'| gene_name == 'ESR1') %>%
+  group_by(gene_name,diagnosis) %>%
+  summarize(mean_FPKM = mean(FPKM), median_FPKM = median(FPKM)) %>%
+  arrange(-mean_FPKM)
+```
+
+
