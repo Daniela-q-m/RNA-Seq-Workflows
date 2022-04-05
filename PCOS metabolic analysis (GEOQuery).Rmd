@@ -67,15 +67,37 @@ data_long_joined <- data_long %>%
 head(data_long_joined)
 ```
 Based on literature searchers, relevant genes
+Literature used:
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3356164/
 ```{r}
-genes_list<-
+genes_list<-c('AR','ERA','CYP19A1','SRD5A2','NR3A2','CYP17','SHBG','ESR1','UGT1A1','PGR','COMT','CYP1A1','CYP1B1','CYP17A1','CYP19A1','GSTM1','GSTP1','GSTT1','HSD17B1','SULT1A1','UGT1A1')
 ```
 
 ```{r}
-data_long_joined %>% filter(gene_name == 'AR'| gene_name == 'ESR1') %>%
+data_long_joined %>% filter(gene_name %in% genes_list) %>%
   group_by(gene_name,diagnosis) %>%
   summarize(mean_FPKM = mean(FPKM), median_FPKM = median(FPKM)) %>%
   arrange(-mean_FPKM)
 ```
-
+```{r}
+data_long_joined  %>%
+  filter(gene_name %in% genes_list) %>%
+  ggplot(., aes(x = samples, y = gene_name, fill = FPKM)) +
+  geom_tile() +
+  scale_fill_gradient( low = "blue", high = "pink")
+```
+```{r}
+#Grouped bar-graph
+data_long_joined %>%
+  filter(gene_name == 'CYP19A1') %>%
+  ggplot(., aes(x = samples, y = FPKM, fill = diagnosis)) +
+  geom_col()
+```
+```{r}
+#data_long_joined %>%
+  #filter(gene_name=='CYP19A1') %>%
+  #ggplot(., aes(x = FPKM, fill = diagnosis)) +
+  #geom_density(alpha = 0.3)
+```
+```{r}
 
